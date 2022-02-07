@@ -21,7 +21,7 @@ func main() {
 	defer tracer.Stop()
 
 	if err := profiler.Start(
-		profiler.WithService("goserver"),
+		profiler.WithService("testrepo"),
 		profiler.WithEnv("dev"),
 		profiler.WithProfileTypes(
 			profiler.CPUProfile,
@@ -44,7 +44,7 @@ func main() {
 	// Continue using the router as you normally would.
 	mux.HandleFunc("/hello", hello)
 	mux.HandleFunc("/error", serveFile)
-	http.ListenAndServe(":80", mux)
+	http.ListenAndServe(":8080", mux)
 }
 
 func hello(w http.ResponseWriter, req *http.Request) {
