@@ -15,7 +15,7 @@ func main() {
 	rules := []tracer.SamplingRule{tracer.RateRule(1)}
 	tracer.Start(
 		tracer.WithSamplingRules(rules),
-		tracer.WithService("goserver"),
+		tracer.WithService("testrepo"),
 		tracer.WithEnv("dev"),
 	)
 	defer tracer.Stop()
