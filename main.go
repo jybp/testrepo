@@ -17,13 +17,13 @@ func main() {
 	rules := []tracer.SamplingRule{tracer.RateRule(1)}
 	tracer.Start(
 		tracer.WithSamplingRules(rules),
-		tracer.WithService("testrepo"),
+		tracer.WithService("testrepo2"),
 		tracer.WithEnv("dev"),
 	)
 	defer tracer.Stop()
 
 	if err := profiler.Start(
-		profiler.WithService("testrepo"),
+		profiler.WithService("testrepo2"),
 		profiler.WithEnv("dev"),
 		profiler.WithProfileTypes(
 			profiler.CPUProfile,
@@ -60,7 +60,7 @@ func hello(w http.ResponseWriter, req *http.Request) {
 }
 
 func svc(ctx context.Context) error {
-	span, ctx := tracer.StartSpanFromContext(ctx, "svc", tracer.ServiceName("svc"), tracer.AnalyticsRate(1))
+	span, ctx := tracer.StartSpanFromContext(ctx, "svc2", tracer.ServiceName("svc2"), tracer.AnalyticsRate(1))
 	time.Sleep(time.Millisecond * 500)
 	err := subsvc(ctx)
 	span.Finish(tracer.WithError(err))
@@ -68,11 +68,11 @@ func svc(ctx context.Context) error {
 }
 
 func subsvc(ctx context.Context) error {
-	span1, ctx := tracer.StartSpanFromContext(ctx, "subsvc2", tracer.ServiceName("subsvc"), tracer.AnalyticsRate(1))
+	span1, ctx := tracer.StartSpanFromContext(ctx, "subsvc2", tracer.ServiceName("subsvc2"), tracer.AnalyticsRate(1))
 	time.Sleep(time.Millisecond * 500)
 	span1.Finish()
 
-	span2, ctx := tracer.StartSpanFromContext(ctx, "subsvc2", tracer.ServiceName("subsvc"), tracer.AnalyticsRate(1))
+	span2, ctx := tracer.StartSpanFromContext(ctx, "subsvc3", tracer.ServiceName("subsvc3"), tracer.AnalyticsRate(1))
 	err := errors.New("test error")
 	time.Sleep(time.Millisecond * 500)
 	span2.Finish(tracer.WithError(err))
