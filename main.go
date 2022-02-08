@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"runtime"
 	"time"
 
 	httptrace "gopkg.in/DataDog/dd-trace-go.v1/contrib/net/http"
@@ -69,7 +70,11 @@ func svc(ctx context.Context) error {
 
 func subsvc(ctx context.Context) error {
 	span1, ctx := tracer.StartSpanFromContext(ctx, "subsvc2", tracer.ServiceName("subsvc2"), tracer.AnalyticsRate(1))
-	time.Sleep(time.Millisecond * 500)
+	// burn cpu time
+	for i := 0; i < 2147483647; i++ {
+	}
+	runtime.Gosched()
+
 	span1.Finish()
 
 	span2, ctx := tracer.StartSpanFromContext(ctx, "subsvc3", tracer.ServiceName("subsvc3"), tracer.AnalyticsRate(1))
