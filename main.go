@@ -62,7 +62,7 @@ func hello(w http.ResponseWriter, req *http.Request) {
 func svc(ctx context.Context) error {
 	span, _ := tracer.StartSpanFromContext(ctx, "sub_svc_span", tracer.ServiceName("subsvc"), tracer.AnalyticsRate(1))
 	time.Sleep(time.Millisecond * 500)
-	span.Finish()
+	span.Finish(tracer.WithError(errors.New("subsvc error")))
 	return errors.New("test error")
 }
 
