@@ -50,8 +50,8 @@ func main() {
 }
 
 func hello(w http.ResponseWriter, req *http.Request) {
-	span, _ := tracer.StartSpanFromContext(req.Context(), "hello_span", tracer.AnalyticsRate(1))
-	err := svc(req.Context())
+	span, ctx := tracer.StartSpanFromContext(req.Context(), "hello_span", tracer.AnalyticsRate(1))
+	err := svc(ctx)
 	if err != nil {
 		log.Printf("err occured: %v", err)
 	}
@@ -60,10 +60,23 @@ func hello(w http.ResponseWriter, req *http.Request) {
 }
 
 func svc(ctx context.Context) error {
-	span, _ := tracer.StartSpanFromContext(ctx, "sub_svc_span", tracer.ServiceName("subsvc"), tracer.AnalyticsRate(1))
+	span, ctx := tracer.StartSpanFromContext(ctx, "svc", tracer.ServiceName("svc"), tracer.AnalyticsRate(1))
 	time.Sleep(time.Millisecond * 500)
-	span.Finish(tracer.WithError(errors.New("subsvc error")))
-	return errors.New("test error")
+	err := subsvc(ctx)
+	span.Finish(tracer.WithError(err))
+	return err
+}
+
+func subsvc(ctx context.Context) error {
+	span1, ctx := tracer.StartSpanFromContext(ctx, "subsvc2", tracer.ServiceName("subsvc"), tracer.AnalyticsRate(1))
+	time.Sleep(time.Millisecond * 500)
+	span1.Finish()
+
+	span2, ctx := tracer.StartSpanFromContext(ctx, "subsvc2", tracer.ServiceName("subsvc"), tracer.AnalyticsRate(1))
+	err := errors.New("test error")
+	time.Sleep(time.Millisecond * 500)
+	span2.Finish(tracer.WithError(err))
+	return err
 }
 
 func serveFile(w http.ResponseWriter, req *http.Request) {
