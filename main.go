@@ -1,10 +1,12 @@
 package main
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"log"
 	"net/http"
+	"time"
 
 	httptrace "gopkg.in/DataDog/dd-trace-go.v1/contrib/net/http"
 	"gopkg.in/DataDog/dd-trace-go.v1/ddtrace/tracer"
@@ -49,7 +51,7 @@ func main() {
 
 func hello(w http.ResponseWriter, req *http.Request) {
 	span, _ := tracer.StartSpanFromContext(req.Context(), "hello_span", tracer.AnalyticsRate(1))
-	err := svc()
+	err := svc(req.Context())
 	if err != nil {
 		log.Printf("err occured: %v", err)
 	}
@@ -57,7 +59,10 @@ func hello(w http.ResponseWriter, req *http.Request) {
 	span.Finish(tracer.WithError(err))
 }
 
-func svc() error {
+func svc(ctx context.Context) error {
+	span, _ := tracer.StartSpanFromContext(ctx, "sub_svc_span", tracer.ServiceName("subsvc"), tracer.AnalyticsRate(1))
+	time.Sleep(time.Millisecond * 500)
+	span.Finish()
 	return errors.New("test error")
 }
 
